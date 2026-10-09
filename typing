@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>指尖奇幻冒險 - 國小生英打學習網</title>
+  <style>
+    :root {
+      --bg-color: #f7f9fc;
+      --primary-color: #4a90e2;
+      --accent-color: #f5a623;
+      --success-color: #7ed321;
+      --error-color: #d0021b;
+      --card-bg: #ffffff;
+      --key-bg: #eef2f7;
+      --key-active: #ffeb3b;
+      --text-main: #333333;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    header {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 25px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+    }
+
+    .status-bar {
+      display: flex;
+      gap: 20px;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .badge {
+      background: #f0f4f9;
+      padding: 6px 14px;
+      border-radius: 20px;
+      color: var(--primary-color);
+    }
+
+    main {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* 遊戲動畫與情境區 */
+    .game-scene {
+      background: linear-gradient(180deg, #e0f2fe 0%, #ffffff 100%);
+      border-radius: 16px;
+      height: 200px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stage-hero {
+      display: flex;
+      justify-content: space-between;
+      width: 80%;
+      margin-top: 20px;
+      font-size: 3rem;
+    }
+
+    .text-display {
+      font-size: 2.2rem;
+      letter-spacing: 6px;
+      font-weight: bold;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 10px 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .char {
+      display: inline-block;
+      transition: all 0.1s;
+    }
+
+    .char.correct {
+      color: var(--success-color);
+    }
+
+    .char.current {
+      border-bottom: 4px solid var(--primary-color);
+      animation: bounce 0.6s infinite alternate;
+    }
+
+    .char.wrong {
+      color: var(--error-color);
+      background-color: #ffe6e6;
+      border-radius: 4px;
+    }
+
+    /* 鍵盤視覺化區 */
+    .keyboard-container {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .key-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .key {
+      width: 48px;
+      height: 48px;
+      background: var(--key-bg);
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      font-size: 1.1rem;
+      box-shadow: 0 2px 0 #cbd5e1;
+      transition: all 0.1s;
+    }
+
+    .key.space {
+      width: 260px;
+    }
+
+    /* 手指指法色彩分區 */
+    .finger-left-pinky { border-top: 4px solid #f87171; }
+    .finger-left-ring { border-top: 4px solid #fb923c; }
+    .finger-left-middle { border-top: 4px solid #facc15; }
+    .finger-left-index { border-top: 4px solid #4ade80; }
+    .finger-right-index { border-top: 4px solid #38bdf8; }
+    .finger-right-middle { border-top: 4px solid #818cf8; }
+    .finger-right-ring { border-top: 4px solid #c084fc; }
+    .finger-right-pinky { border-top: 4px solid #f472b6; }
+
+    .key.target {
+      background: var(--key-active);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 0 #d97706;
+      animation: pulse 0.8s infinite alternate;
+    }
+
+    /* 指法提示說明 */
+    .hand-guide {
+      text-align: center;
+      font-size: 1rem;
+      color: #64748b;
+      margin-top: 5px;
+      font-weight: 500;
+    }
+
+    /* 結算彈窗 */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .modal h2 {
+      margin-bottom: 15px;
+      color: var(--primary-color);
+    }
+
+    .stars {
+      font-size: 2.5rem;
+      color: var(--accent-color);
+      margin: 10px 0;
+    }
+
+    .restart-btn {
+      margin-top: 20px;
+      padding: 10px 25px;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #2563eb;
+    }
+
+    .restart-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #2563eb;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.08); }
+    }
+
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-4px); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h2>關卡 1-1：基準線初體驗 (Home Row)</h2>
+    <div class="status-bar">
+      <div class="badge">速度: <span id="wpm">0</span> WPM</div>
+      <div class="badge">正確率: <span id="accuracy">100</span>%</div>
+    </div>
+  </header>
+
+  <main>
+    <!-- 遊戲動畫區 -->
+    <div class="game-scene">
+      <div class="stage-hero">
+        <span id="hero">🧙‍♂️</span>
+        <span id="monster">👾</span>
+      </div>
+      <div class="text-display" id="textDisplay"></div>
+    </div>
+
+    <!-- 指法提示語 -->
+    <div class="hand-guide" id="handGuide">
+      提示：請準備好手指，對準亮起黃色的按鍵！
+    </div>
+
+    <!-- 視覺化虛擬鍵盤 -->
+    <div class="keyboard-container">
+      <div class="key-row">
+        <div class="key finger-left-pinky" data-key="q">Q</div>
+        <div class="key finger-left-ring" data-key="w">W</div>
+        <div class="key finger-left-middle" data-key="e">E</div>
+        <div class="key finger-left-index" data-key="r">R</div>
+        <div class="key finger-left-index" data-key="t">T</div>
+        <div class="key finger-right-index" data-key="y">Y</div>
+        <div class="key finger-right-index" data-key="u">U</div>
+        <div class="key finger-right-middle" data-key="i">I</div>
+        <div class="key finger-right-ring" data-key="o">O</div>
+        <div class="key finger-right-pinky" data-key="p">P</div>
+      </div>
+      <div class="key-row">
+        <div class="key finger-left-pinky" data-key="a">A</div>
+        <div class="key finger-left-ring" data-key="s">S</div>
+        <div class="key finger-left-middle" data-key="d">D</div>
+        <div class="key finger-left-index" data-key="f">F</div>
+        <div class="key finger-left-index" data-key="g">G</div>
+        <div class="key finger-right-index" data-key="h">H</div>
+        <div class="key finger-right-index" data-key="j">J</div>
+        <div class="key finger-right-middle" data-key="k">K</div>
+        <div class="key finger-right-ring" data-key="l">L</div>
+        <div class="key finger-right-pinky" data-key=";">;</div>
+      </div>
+      <div class="key-row">
+        <div class="key finger-left-pinky" data-key="z">Z</div>
+        <div class="key finger-left-ring" data-key="x">X</div>
+        <div class="key finger-left-middle" data-key="c">C</div>
+        <div class="key finger-left-index" data-key="v">V</div>
+        <div class="key finger-left-index" data-key="b">B</div>
+        <div class="key finger-right-index" data-key="n">N</div>
+        <div class="key finger-right-index" data-key="m">M</div>
+      </div>
+      <div class="key-row">
+        <div class="key space" data-key=" ">空白鍵</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 結算彈窗 -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h2>🎉 關卡完成！</h2>
+      <div class="stars" id="starDisplay">★★★</div>
+      <p>最終打字速度：<strong id="finalWpm">0</strong> WPM</p>
+      <p>最終正確率：<strong id="finalAcc">0</strong>%</p>
+      <button class="restart-btn" onclick="initGame()">再試一次</button>
+    </div>
+  </div>
+
+  <script>
+    // 關卡文本庫
+    const practiceText = "fff jjj fjfj dskl asdf jkl;";
+    let currentIndex = 0;
+    let totalTyped = 0;
+    let errors = 0;
+    let startTime = null;
+
+    // 指法提示對照表
+    const fingerGuides = {
+      'a': '左手小指', 's': '左手無名指', 'd': '左手中指', 'f': '左手食指', 'g': '左手食指',
+      'h': '右手食指', 'j': '右手食指', 'k': '右手中指', 'l': '右手無名指', ';': '右手小指',
+      ' ': '大拇指'
+    };
+
+    const textDisplay = document.getElementById('textDisplay');
+    const handGuide = document.getElementById('handGuide');
+    const wpmDisplay = document.getElementById('wpm');
+    const accuracyDisplay = document.getElementById('accuracy');
+    const modalOverlay = document.getElementById('modalOverlay');
+
+    // 初始化遊戲
+    function initGame() {
+      currentIndex = 0;
+      totalTyped = 0;
+      errors = 0;
+      startTime = null;
+      modalOverlay.classList.remove('active');
+      wpmDisplay.textContent = '0';
+      accuracyDisplay.textContent = '100';
+      
+      renderText();
+      updateHighlight();
+    }
+
+    // 渲染打字文字區域
+    function renderText() {
+      textDisplay.innerHTML = '';
+      practiceText.split('').forEach((char, index) => {
+        const span = document.createElement('span');
+        span.classList.add('char');
+        span.textContent = char === ' ' ? '␣' : char;
+        if (index === 0) span.classList.add('current');
+        textDisplay.appendChild(span);
+      });
+    }
+
+    // 高亮對應按鍵與指法提示
+    function updateHighlight() {
+      // 清除所有高亮
+      document.querySelectorAll('.key').forEach(k => k.classList.remove('target'));
+
+      if (currentIndex < practiceText.length) {
+        const currentChar = practiceText[currentIndex].toLowerCase();
+        const targetKey = document.querySelector(`.key[data-key="${currentChar}"]`);
+        
+        if (targetKey) {
+          targetKey.classList.add('target');
+        }
+
+        // 更新手指指法文字提示
+        const finger = fingerGuides[currentChar] || '對應手指';
+        handGuide.textContent = `提示：請使用【${finger}】按下鍵盤上的『 ${currentChar === ' ' ? '空白鍵' : currentChar.toUpperCase()} 』`;
+      }
+    }
+
+    // 監聽鍵盤輸入
+    window.addEventListener('keydown', (e) => {
+      if (currentIndex >= practiceText.length) return;
+
+      // 忽視系統按鍵（如 Shift, Alt 等）
+      if (e.key.length > 1 && e.key !== 'Spacebar' && e.key !== ' ') return;
+
+      // 啟動計時器
+      if (!startTime) startTime = new Date();
+
+      const inputChar = e.key;
+      const targetChar = practiceText[currentIndex];
+      const charElements = textDisplay.querySelectorAll('.char');
+
+      totalTyped++;
+
+      if (inputChar === targetChar) {
+        // 輸入正確
+        charElements[currentIndex].className = 'char correct';
+        currentIndex++;
+        if (currentIndex < practiceText.length) {
+          charElements[currentIndex].classList.add('current');
+        }
+      } else {
+        // 輸入錯誤
+        errors++;
+        charElements[currentIndex].classList.add('wrong');
+      }
+
+      // 計算統計數據
+      calculateStats();
+      
+      // 更新高亮狀態
+      updateHighlight();
+
+      // 檢查是否通關
+      if (currentIndex >= practiceText.length) {
+        endGame();
+      }
+    });
+
+    // 計算 WPM 與 正確率
+    function calculateStats() {
+      const timeElapsed = (new Date() - startTime) / 1000 / 60; // 分鐘
+      const wpm = timeElapsed > 0 ? Math.round((currentIndex / 5) / timeElapsed) : 0;
+      const accuracy = totalTyped > 0 ? Math.round(((totalTyped - errors) / totalTyped) * 100) : 100;
+
+      wpmDisplay.textContent = wpm;
+      accuracyDisplay.textContent = Math.max(0, accuracy);
+    }
+
+    // 關卡結束結算
+    function endGame() {
+      const finalWpm = wpmDisplay.textContent;
+      const finalAcc = accuracyDisplay.textContent;
+
+      document.getElementById('finalWpm').textContent = finalWpm;
+      document.getElementById('finalAcc').textContent = finalAcc;
+
+      // 計算星星星級
+      let stars = '★☆☆';
+      if (finalAcc >= 95) stars = '★★★';
+      else if (finalAcc >= 85) stars = '★★☆';
+
+      document.getElementById('starDisplay').textContent = stars;
+      modalOverlay.classList.add('active');
+    }
+
+    // 啟動遊戲
+    initGame();
+  </script>
+</body>
+</html>
