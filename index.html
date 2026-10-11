@@ -239,7 +239,7 @@ h2{margin:9px 0 8px;font-size:clamp(27px,3vw,38px);letter-spacing:-.03em}
   </section>
 
   <section class="section" id="levels" aria-labelledby="levels-title">
-    <div class="section-head"><div class="section-kicker">MISSION SELECT</div><h2 id="levels-title">選擇你的探索關卡</h2><p class="section-desc">完成前一關才能解鎖下一關。第三關題庫超過 70 種單字與短句，每次隨機抽出 7 題。</p></div>
+    <div class="section-head"><div class="section-kicker">MISSION SELECT</div><h2 id="levels-title">選擇你的探索關卡</h2><p class="section-desc">完成前一關才能解鎖下一關。</p></div>
     <div class="levels">
       <article class="level-card" data-level-card="1"><div class="level-number">01</div><h3>鍵盤新手星</h3><p>依序挑戰基準行、上排與下排三個小關，每關都要累積正確輸入。</p><button class="level-link" data-level="1" type="button">進入關卡 <span>→</span></button></article>
       <article class="level-card locked" data-level-card="2"><span class="lock-label hidden" data-lock-label>🔒 尚未解鎖</span><div class="level-number">02</div><h3>字母流星雨</h3><p>按下正確的字母，消除落下的流星，訓練反應速度。</p><button class="level-link" data-level="2" type="button" disabled>🔒 尚未解鎖</button></article>
@@ -912,7 +912,7 @@ h2{margin:9px 0 8px;font-size:clamp(27px,3vw,38px);letter-spacing:-.03em}
 
       if (level3Index >= wordTasks.length) {
         updateStats();
-        finishLevel(true,'🌙','單字探索完成！',`你完成了本輪隨機抽出的 ${WORD_TASK_COUNT} 題！題庫共有 ${wordBank.length} 種單字、短語與短句，現在可以挑戰完整文章囉！`);
+        finishLevel(true,'🌙','單字探索完成！現在可以挑戰完整文章囉！`);
       } else {
         $('#level3Notice').textContent = '答對了！下一個任務準備出發。';
         $('#level3Notice').className = 'notice good';
